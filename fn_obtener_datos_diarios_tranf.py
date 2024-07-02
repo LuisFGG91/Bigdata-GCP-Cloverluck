@@ -24,6 +24,16 @@ def upload_data_to_bigquery(client, dataset_id, table_id, rows_to_insert):
     if errors != []:
         print(f"Errors occurred while inserting rows into table {table_id}: {errors}")
 
+def remove_duplicates(rows, key):
+    seen = set()
+    unique_rows = []
+    for row in rows:
+        identifier = row[key]
+        if identifier not in seen:
+            unique_rows.append(row)
+            seen.add(identifier)
+    return unique_rows
+
 def process_json_to_bigquery(request):
     try:
         # Obtener la fecha actual
@@ -121,7 +131,9 @@ def process_json_to_bigquery(request):
                 'color': negocio.get('color'),
                 'url': negocio.get('url')
             }
-            upload_data_to_bigquery(client, dataset_id, 'negocios', [negocio_row])
+            negocio_rows = [negocio_row]
+            negocio_rows = remove_duplicates(negocio_rows, 'negocio_id')
+            upload_data_to_bigquery(client, dataset_id, 'negocios', negocio_rows)
 
             # Horarios de ida
             horarios_rows = []
@@ -134,6 +146,7 @@ def process_json_to_bigquery(request):
                     'fin': horario.get('fin')
                 }
                 horarios_rows.append(row)
+            horarios_rows = remove_duplicates(horarios_rows, 'recorrido_id')
             upload_data_to_bigquery(client, dataset_id, 'horarios', horarios_rows)
 
             # Horarios de regreso
@@ -147,6 +160,7 @@ def process_json_to_bigquery(request):
                     'fin': horario.get('fin')
                 }
                 horarios_rows.append(row)
+            horarios_rows = remove_duplicates(horarios_rows, 'recorrido_id')
             upload_data_to_bigquery(client, dataset_id, 'horarios', horarios_rows)
 
             # Paths de ida
@@ -159,6 +173,7 @@ def process_json_to_bigquery(request):
                     'lon': point[1]
                 }
                 paths_rows.append(row)
+            paths_rows = remove_duplicates(paths_rows, 'recorrido_id')
             upload_data_to_bigquery(client, dataset_id, 'paths', paths_rows)
 
             # Paths de regreso
@@ -171,6 +186,7 @@ def process_json_to_bigquery(request):
                     'lon': point[1]
                 }
                 paths_rows.append(row)
+            paths_rows = remove_duplicates(paths_rows, 'recorrido_id')
             upload_data_to_bigquery(client, dataset_id, 'paths', paths_rows)
 
             # Paraderos de ida
@@ -214,6 +230,8 @@ def process_json_to_bigquery(request):
                         'codigo': servicio.get('codigo')
                     }
                     servicios_rows.append(servicio_row)
+            paraderos_rows = remove_duplicates(paraderos_rows, 'paradero_id')
+            servicios_rows = remove_duplicates(servicios_rows, 'id')
             upload_data_to_bigquery(client, dataset_id, 'paraderos', paraderos_rows)
             upload_data_to_bigquery(client, dataset_id, 'servicios', servicios_rows)
 
@@ -258,6 +276,8 @@ def process_json_to_bigquery(request):
                         'codigo': servicio.get('codigo')
                     }
                     servicios_rows.append(servicio_row)
+            paraderos_rows = remove_duplicates(paraderos_rows, 'paradero_id')
+            servicios_rows = remove_duplicates(servicios_rows, 'id')
             upload_data_to_bigquery(client, dataset_id, 'paraderos', paraderos_rows)
             upload_data_to_bigquery(client, dataset_id, 'servicios', servicios_rows)
 
