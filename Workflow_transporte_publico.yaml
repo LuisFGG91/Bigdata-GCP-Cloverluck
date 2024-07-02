@@ -1,0 +1,35 @@
+# This is a sample workflow to test or replace with your source code.
+#
+# This workflow passes the region where the workflow is deployed
+# to the Wikipedia API and returns a list of related Wikipedia articles.
+# A region is retrieved from the GOOGLE_CLOUD_LOCATION system variable
+# unless you input your own search term; for example, {"searchTerm": "asia"}.
+main:
+  steps:
+    - obtener_datos_diarios_iniciales:
+        call: http.get
+        args:
+          url: https://us-central1-eva-2-duocuc-clk.cloudfunctions.net/fn_obtener_datos_diarios_in
+          timeout: 600  # Tiempo de espera de 10 minutos
+        result: obtener_datos_diarios_iniciales_result
+
+    - transferir_datos_diarios:
+        call: http.get
+        args:
+          url: https://us-central1-eva-2-duocuc-clk.cloudfunctions.net/fn_obtener_datos_diarios_tranf
+          timeout: 600  # Tiempo de espera de 10 minutos
+        result: transferir_datos_diarios_result
+
+    - obtener_datos_historicos_iniciales:
+        call: http.get
+        args:
+          url: https://us-central1-eva-2-duocuc-clk.cloudfunctions.net/fn_obtener_datos_historicos_in
+          timeout: 600  # Tiempo de espera de 10 minutos
+        result: obtener_datos_historicos_iniciales_result
+
+    - transferir_datos_historicos:
+        call: http.get
+        args:
+          url: https://us-central1-eva-2-duocuc-clk.cloudfunctions.net/fn_obtener_datos_historicos_tranf
+          timeout: 600  # Tiempo de espera de 10 minutos
+        result: transferir_datos_historicos_result
